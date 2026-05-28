@@ -22,3 +22,11 @@ __pycache__/
 *.elf
 *.o
 *.map
+
+# MSP430IDE workspace state (machine-local, not shared)
+**/.msp430ide/
+
+# Editor backup/scratch files
+*.s.save
+*.s.save.*
+untitled.s
