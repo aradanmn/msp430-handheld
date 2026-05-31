@@ -14,7 +14,28 @@ A complete 16-lesson MSP430G2553 assembly programming course targeting the TI MS
 
 Installs `mspdebug` and `picocom` via Homebrew. The compiler comes from the TI MSP430-GCC full installer (`~/ti/msp430-gcc/`), which includes device-specific linker scripts. `libmsp430.dylib` is built from source for arm64 and installed to `~/.local/lib/`.
 
-## Build Commands (run in Terminal on Mac)
+## MSP430IDE
+
+A native macOS IDE lives at `~/Documents/MSP430IDE/`. Every exercise and the
+`handheld/` project has an `msp430.toml` that the IDE reads automatically.
+
+```sh
+# Build and open the IDE
+cd ~/Documents/MSP430IDE && make run
+
+# Open any exercise as a project:
+# File → Open Folder → select e.g. course/lesson-03-gpio-input/exercises/ex2
+# The IDE discovers the msp430.toml and enables Build / Flash / Disasm buttons.
+
+# Open the whole repo as a workspace:
+# File → Open Folder → select msp430-handheld/
+# IDE auto-discovers all sub-projects (one per exercise + handheld).
+```
+
+Each `msp430.toml` uses `mode = "external"` — Build shells out to `make`,
+Flash to `make flash`, Disasm to `make disasm`. No extra configuration needed.
+
+## Build Commands (Terminal fallback)
 
 ```sh
 cd course/lesson-01-architecture/examples
@@ -211,24 +232,61 @@ See `handheld/registers.md` for the full reference. Summary:
 
 ## Exercise Format Policy
 
-Solution directories do not exist. Do not create them.
+Solution directories do not exist. Do not create them. Do not recreate them.
 
-Each lesson has **3 exercises** (not 4), each with a distinct purpose:
+Each lesson has **3 exercises**:
 
-- **Ex1 — Explore:** Build something that works. Tutorials provide conceptual understanding; from L04 onward the datasheet (SLAU144) provides register details. The student figures out the configuration, not copies it. Standalone LaunchPad demo.
-- **Ex2 — Challenge:** Debug broken code, solve a constraint problem, or make a design decision with real tradeoffs. Bugs must be realistic (config errors, not syntax tricks) and the buggy code must compile. At least one debug exercise per lesson from L02 onward.
-- **Ex3 — Milestone (L02+):** Write a real `handheld/hal/*.s` module from a behavioral spec and interface contract. This is permanent, cumulative code the student creates. No pre-built version is provided. L01 has no milestone (pure fundamentals).
+- **Ex1 — Explore:** Standalone LaunchPad demo. Student derives configuration from tutorials + SLAU144. No pseudocode, no loop structure hints, no "what changes from last exercise."
+- **Ex2 — Challenge:** A real constraint problem or design decision. State the problem only — no hints about what's wrong or how to fix it.
+- **Ex3 — Milestone (L02+):** Write a `handheld/` module from a behavioural spec + public interface (function names + args only). No register pre-assignments, no algorithm outlines. L01 has no milestone.
 
-**Key principles:**
-- Tutorials teach concepts, not register recipes. Never hand out exact register bit patterns in exercises.
-- The MSP430x2xx Family User's Guide (SLAU144) is the primary reference from L04 onward.
-- If the student can solve an exercise by copying from the tutorial, it's too easy.
-- The student writes ALL handheld modules — nothing is pre-built.
-- Each exercise states which prior lessons/exercises it builds on.
+**Scaffold rules — enforced per tier:**
 
-**When grading:** compare to the spec (not a solution file), note correctness first, call out one cosmetic issue max. Do not show the correct implementation. When the student has a bug, guide them toward finding it themselves rather than giving the fix.
+| Tier | Allowed | Forbidden |
+|------|---------|-----------|
+| Ex1 | Behaviour spec, what to look up in SLAU144, success criteria | Pseudocode, register bit patterns, loop structure hints |
+| Ex2 | Problem statement, observable failure mode | What's broken, how to fix it, which register |
+| Ex3 | Behaviour spec, public function names + arg registers | Register assignments, algorithm outlines, subroutine templates |
 
-GAS constant arithmetic (`.equ FOO, (TICK_MS * 1000) - 1`) is the expected style for all timing constants from lesson 04 onward.
+**Grading rules:**
+- Grade against the spec, not a solution file
+- Leftover TODO comment in working code: **−1**
+- First attempt had a structural bug requiring correction: **−2**
+- One cosmetic note max per grade
+- Do not show the correct implementation — ever
+- When student is stuck: point to ONE specific line or ask ONE question. Never give the answer.
+- When student misreads the spec: hold the original interpretation. Do not agree with the misreading.
+
+**Interaction rules:**
+- Do not introduce instructions not yet covered in the curriculum
+- Do not contradict a previous answer without explicitly stating "I was wrong about X"
+- `.equ` arithmetic is the expected style for all timing constants from L04 onward
+- `clr.w` has been used by the student but not formally introduced — do not teach it as a new concept; treat it as known
+
+## Course Map
+
+The handheld skeleton grows with each milestone. By L10 it is a complete platform; L11–L16 build the game on top of it.
+
+| L | Topic | Ex1 | Ex2 | Ex3 Milestone |
+|---|-------|-----|-----|---------------|
+| 01 | Architecture | Faster blink | Alternating LEDs | — |
+| 02 | GPIO Patterns | Counted flash | Dual throb | `hal/leds.s` |
+| 03 | GPIO Input | Bounce demo | Design debounce | `hal/input.s` |
+| 04 | Timer_A | Polling blink | Timing analysis | `hal/timer.s` (polling) |
+| 05 | Interrupts | Convert to ISR | ISR timing budget | `hal/timer.s` → ISR + LPM0; game loop shell in `main.s` |
+| 06 | SPI | Bit-bang SPI | USCI_B0 hardware SPI | `hal/spi.s` |
+| 07 | Display | Raw bytes to OLED | Debug broken init | `hal/display.s` (init + clear + pixel) |
+| 08 | Framebuffer | Pixel/line to byte array | Dirty-page optimisation | `gfx/framebuf.s` |
+| 09 | PWM / Audio | Single tone | Melody sequencer | `hal/audio.s` |
+| 10 | Sprites | Render bitmap | Move without artifacts | `gfx/sprites.s` |
+| 11 | Piece Logic | Represent + rotate piece | Collision detection | `game/tetris.s` (pieces) |
+| 12 | Board Logic | Line detect + clear | Scoring + level speed | `game/tetris.s` (board) |
+| 13 | UART | Send score to terminal | Receive speed command | `game/ui.s` (score on OLED + UART) |
+| 14 | ADC | Internal temp sensor | Potentiometer input | — (integrate into game) |
+| 15 | External Memory | SRAM read/write | High score in flash | `gfx/framebuf.s` → SRAM-backed |
+| 16 | Low Power | Measure LPM current | Auto-sleep on idle | LPM3 in game loop |
+
+**Handheld build order matters.** Each module `#include`d into `main.s` must compile cleanly before the next milestone starts. The Makefile target is always `cd handheld && make flash`.
 
 ## Datasheet References
 
@@ -245,22 +303,36 @@ The student should download these free PDFs from TI:
 
 ## Student Progress
 
-**Last session:** 2026-03-27
+**Last session:** 2026-05-03
 
-**Course restart:** Student completed L01–L05 under the old recipe-style format, then chose to restart from L01 with a redesigned approach (concept-driven, datasheet-referenced, student-builds-everything). Prior exercise solutions are in git history but no longer referenced.
+**Current position:** Lesson 03, Exercise 2 (debounce)
 
-**Current position:** Lesson 01 (restart)
+**Completed:**
+- L01 Ex1–Ex3: ✅ complete
+- L02 Ex1–Ex3: ✅ complete
+- L03 Ex1: ✅ 8/10 — first attempt toggled continuously while held (structural bug); fixed on second attempt. Grade file at `exercises/ex1/grade.md`
+- L04 Ex1: ✅ 10/10 (−0, but leftover TODO comment noted)
+- L04 Ex2: ✅ 10/10 (same note)
+- L04 Ex3: ✅ 8/10 — LED2 label placement bug (bic.b outside branch), LED2 flash behaviour misread from spec
 
-**Student patterns observed (from first pass):**
-- Strong on constants and formulas; reaches for `.equ` arithmetic unprompted
-- Gets flow control right once the bug is identified
-- Does not need pseudocode hints; spec alone is sufficient
-- Makes transcription errors when copying patterns (not understanding errors) — further evidence the old approach wasn't teaching the material
-- Discovered `clr.w` independently
+**Student patterns:**
+- Strong on `.equ` arithmetic — reaches for it unprompted
+- Does not need pseudocode; spec alone is sufficient
+- Flow control bugs: gets them right once identified, not before
+- Misreads ambiguous spec wording (e.g. "flashes" → interpreted as rapid toggle, not single on/off)
+- Discovered `clr.w` independently — treat as known, do not re-introduce formally
+- Tends to over-scaffold subroutines on first attempt (multi-case dispatch where simpler structure works)
 
-**Course design (current):**
-- `handheld/` skeleton grows via student-created milestone exercises (ex3)
-- Each lesson adds one module: LEDs (L02), input (L03), timer (L04), ISR+LPM0 (L05), SPI (L06)
-- Tutorials teach concepts; datasheet (SLAU144) is the register reference from L04+
-- Debug exercises in every lesson from L02 onward
-- Student writes all code — no pre-built modules
+**Known self-critique of prior responses:**
+- Introduced `clr.w` unprompted before it was in the curriculum — retracted awkwardly
+- Flip-flopped on LED2 flash behaviour three times in one session — cost a full debugging session
+- Left too much scaffold in L04-ex3 on first pass (register assignments, subroutine interface fully spelled out)
+- Graded 10/10 on exercises with leftover TODO comments — should have been −1 each
+- Contradicted SPD_STATE constant advice twice in same conversation without acknowledging it
+
+**Pending:**
+- L03 Ex2 (debounce — in progress)
+- L03 Ex3 milestone: `handheld/hal/input.s`
+- Lessons 5–16 exercise content not yet generated
+- Lesson 1–3 exercise skeletons not yet updated to current hint-reduction standard
+- Grade files should move to `grades/` directory (not adjacent to exercises)

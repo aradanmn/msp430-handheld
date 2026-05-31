@@ -1,7 +1,7 @@
 [project]
 name    = "L02 GPIO Patterns — Ex2"
 mcu     = "msp430g2553"
-mode    = "external"
+mode    = "native"
 
 [external]
 build  = "make"

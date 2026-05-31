@@ -171,10 +171,10 @@ Build a Game Boy-style handheld running Tetris, one lesson at a time. Every less
 
 ## Repo Organization
 
-Single repo: **github.com/aradanmn/msp430-tetris**
+Single repo: **github.com/aradanmn/msp430-handheld**
 
 ```
-msp430-tetris/
+msp430-handheld/
 ├── ROADMAP.md              ← this file
 ├── CLAUDE.md               ← AI assistant context
 ├── README.md
