@@ -45,6 +45,7 @@ This module depends on `handheld/hal/spi.s` (Lesson 12's milestone) for
 | `display_init` | — | — |
 | `display_clear` | — | — |
 | `display_set_pixel` | R12 = x (0–127), R13 = y (0–63) | — |
+| `display_clear_pixel` | R12 = x (0–127), R13 = y (0–63) | — |
 
 ## Build & Test
 
