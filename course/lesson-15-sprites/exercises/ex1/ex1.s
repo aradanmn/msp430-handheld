@@ -49,7 +49,9 @@ _start:
 ;==============================================================================
 ; sprite_draw — R12 = tile pointer (8-byte bitmap), R13 = x, R14 = y
 ;==============================================================================
-; Your implementation here.
+sprite_draw:
+    ; Your implementation here.
+    ret
 
 ;==============================================================================
 ; tile_plus — 8x8 sprite bitmap, one byte per row, bit 7 = leftmost column
