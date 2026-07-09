@@ -37,6 +37,13 @@ _start:
     mov.w   #10, R13            ; y = 10
     call    #display_set_pixel
 
+    mov.w   #10, R12            ; light a second pixel a couple rows down...
+    mov.w   #12, R13
+    call    #display_set_pixel
+    mov.w   #10, R12            ; ...then clear it again, to exercise both halves
+    mov.w   #12, R13            ; of the set/clear pair. Only (10,10) stays lit.
+    call    #display_clear_pixel
+
 .Lhalt:
     jmp     .Lhalt
 
@@ -208,6 +215,47 @@ display_set_pixel:
 
     mov.w   R13, R9              ; R9 = bit index again
     mov.b   pixel_bit_table(R9), R12
+    call    #oled_data
+
+    pop     R11
+    pop     R10
+    pop     R9
+    ret
+
+;==============================================================================
+; display_clear_pixel — turn off pixel (x, y); x in R12, y in R13
+;
+; Mirror image of display_set_pixel: identical addressing, but the data
+; byte written is 0x00 instead of the one-bit mask. Same blind-write
+; caveat applies — this clobbers the other 7 pixels in that GDDRAM byte.
+;==============================================================================
+display_clear_pixel:
+    push    R9
+    push    R10
+    push    R11
+
+    mov.w   R12, R11
+    mov.w   R13, R10
+    mov.w   R10, R9
+    rra.w   R9
+    rra.w   R9
+    rra.w   R9                   ; R9 = page = y >> 3
+
+    mov.b   #0x21, R12          ; set column address window = [x, x]
+    call    #oled_cmd
+    mov.b   R11, R12
+    call    #oled_cmd
+    mov.b   R11, R12
+    call    #oled_cmd
+
+    mov.b   #0x22, R12          ; set page address window = [page, page]
+    call    #oled_cmd
+    mov.b   R9, R12
+    call    #oled_cmd
+    mov.b   R9, R12
+    call    #oled_cmd
+
+    mov.b   #0x00, R12          ; data byte: every bit clear
     call    #oled_data
 
     pop     R11

@@ -31,6 +31,9 @@ This module depends on `handheld/hal/spi.s` (Lesson 12's milestone) for
   clobber the other 7 pixels sharing that GDDRAM byte if they aren't
   already 0 (see tutorial-02). That's expected at this milestone; Lesson 14
   addresses it.
+- `display_clear_pixel` — the mirror image of `display_set_pixel`: same
+  addressing, but the data byte written has every bit clear instead of one
+  bit set. Turns the given pixel off. Same blind-write caveat applies.
 - This module owns its own CS (P2.0) and DC (P2.1) pins — set them around
   each SPI transaction as described in tutorial-01. It does not touch
   `hal/spi.s`'s internals beyond calling `spi_tx_byte`.

@@ -90,3 +90,13 @@ window, then send one data byte with only that bit set. Study
 remembering, per Tutorial 01, that the exact addressing-mode command values
 are still worth double-checking against your specific controller's
 datasheet.
+
+## The Mirror Image: Turning a Pixel Off
+
+Everything above lights a pixel. Turning one back off — needed the moment
+anything needs to move or be erased, starting in Lesson 15 — is the exact
+same four steps with one difference: the data byte you send has that one
+bit **clear** instead of set (`0x00` on a page/column byte with nothing
+else in it, same blind-write caveat as before). `display_demo.s` includes
+`display_clear_pixel(x, y)` alongside `display_set_pixel(x, y)` for exactly
+this reason — same address-window setup, opposite data byte.
