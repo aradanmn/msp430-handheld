@@ -165,34 +165,30 @@ spi_tx_byte:
 
 ;==============================================================================
 ; sram_write_byte — in: R12 = data byte, R13/R14/R15 = addr hi/mid/lo
+; (spi_tx_byte only ever reads/writes R12, so R13-R15 survive each call
+; untouched — only the data byte in R12 needs to be saved across them.)
 ;==============================================================================
 sram_write_byte:
-    push    R12
-    push    R13
-    push    R14
-    push    R15
+    push    R12                         ; save the data byte
 
     bic.b   #SRAM_CS, &P2OUT
 
     mov.b   #SRAM_OPCODE_WRITE, R12
     call    #spi_tx_byte
-    mov.b   14(SP), R12                 ; R13 saved value (addr hi)
+    mov.b   R13, R12                    ; addr hi
     call    #spi_tx_byte
+    mov.b   R14, R12                    ; addr mid
+    call    #spi_tx_byte
+    mov.b   R15, R12                    ; addr lo
+    call    #spi_tx_byte
+
     bis.b   #SRAM_CS, &P2OUT
     bic.b   #SRAM_CS, &P2OUT
-    mov.b   12(SP), R12                 ; R14 saved value (addr mid)
-    call    #spi_tx_byte
-    mov.b   10(SP), R12                 ; R15 saved value (addr lo)
-    call    #spi_tx_byte
-    mov.b   8(SP), R12                  ; original data byte
+
+    pop     R12                         ; restore the data byte
     call    #spi_tx_byte
 
     bis.b   #SRAM_CS, &P2OUT
-
-    pop     R15
-    pop     R14
-    pop     R13
-    pop     R12
     ret
 
 ;==============================================================================
