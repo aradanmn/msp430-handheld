@@ -1,0 +1,16 @@
+[project]
+name    = "L04 Delays, Flags & Constant Generator — Exercise 2"
+mcu     = "msp430g2553"
+mode    = "external"
+
+[external]
+build  = "make"
+flash  = "make flash"
+clean  = "make clean"
+disasm = "make disasm"
+
+[flash]
+driver = "tilib"
+
+[flash.env]
+DYLD_LIBRARY_PATH = "~/.local/lib"
