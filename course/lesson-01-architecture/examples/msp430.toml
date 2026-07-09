@@ -1,5 +1,5 @@
 [project]
-name    = "L01 Architecture — Example"
+name    = "L01 Architecture & Toolchain — Example"
 mcu     = "msp430g2553"
 mode    = "external"
 

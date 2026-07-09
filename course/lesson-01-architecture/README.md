@@ -1,67 +1,87 @@
 # Lesson 01 — Architecture & Toolchain
 
-**Goal:** Understand what's inside the MSP430G2553, write your first assembly program, and get it running on the LaunchPad.
+## Topic
 
-**Game connection:** Every Tetris game loop, every pixel update, every button read starts here — understanding the CPU registers and memory map is how you know where everything lives.
+Before any peripheral makes sense, you need to know what you're actually
+programming: the MSP430G2553's memory map, its 16-register CPU, and the
+toolchain that turns a `.s` file into bits sitting in Flash. This lesson
+covers no peripherals beyond the two GPIO pins needed to blink an LED — the
+entire point is to get the foundation solid: where code and data live, what
+the special registers (PC, SP, SR, CG) do, why the very first four
+instructions of every program in this course look identical, and how
+`make` / `make flash` actually get a program onto the chip.
 
----
+By the end of this lesson you will have written, built, and flashed your
+first real program: LED1 blinking at a steady 1 Hz.
 
-## What You'll Learn
+## Learning Objectives
 
-- The MSP430G2553's memory map (Flash, RAM, peripherals, Info Flash)
-- The 16 CPU registers and what each one does
-- The most common instructions: MOV, ADD, SUB, AND, OR, BIC, BIS, BIT
-- The four addressing modes: register, immediate, absolute, indirect
-- How to build, flash, and debug with the toolchain
-- How to write a software delay loop calibrated to 1 MHz
+By the end of this lesson you will be able to:
 
----
+- Describe the MSP430G2553 memory map (Flash, RAM, peripheral space, Info
+  Flash) and state the address range of each region
+- Name the four special-purpose registers (R0–R3) and what each one does
+- Explain why the stack pointer must be initialized to `0x0400` before
+  anything else happens, and why the stack grows downward from there
+- Explain the WDTPW password mechanism and why a watchdog write without it
+  resets the chip
+- Walk through the DCO calibration sequence (`clr.b &DCOCTL` →
+  `mov.b &CALBC1_1MHZ, &BCSCTL1` → `mov.b &CALDCO_1MHZ, &DCOCTL`) and why the
+  order matters
+- Explain what the `.vectors` section is, why it lives at a fixed address,
+  and what the CPU does with it at power-up
+- Use `make`, `make flash`, `make disasm`, and `make clean` to build and
+  deploy a program to the LaunchPad
 
-## Hardware
+## What You'll Build
 
-Just the **MSP-EXP430G2 LaunchPad** connected via USB. No extra components needed.
+`examples/blink.s` — a complete program that blinks LED1 (P1.0, red) at a
+steady 1 Hz: 500 ms on, 500 ms off, forever, using a calibrated 1 MHz clock
+and a counted delay loop.
 
----
+`exercises/ex1` — the same idea, but you derive your own delay constants to
+hit a different (faster) blink rate.
 
-## Files
+`exercises/ex2` — a design problem: make two LEDs alternate correctly, with
+no gap and no overlap.
 
-```
-lesson-01-architecture/
-├── README.md                        ← you are here
-├── tutorial-01-msp430g2553-overview.md   ← architecture deep dive
-├── tutorial-02-toolchain-workflow.md     ← build, flash, debug
-├── examples/
-│   ├── Makefile
-│   └── blink.s                      ← LED1 blinks at 1 Hz
-└── exercises/
-    ├── README.md                    ← exercise descriptions
-    ├── ex1/                         ← turn on an LED (from scratch)
-    ├── ex2/                         ← blink with a delay loop (you design it)
-    └── ex3/                         ← SOS Morse code (you design the structure)
-```
+There is no `handheld/` milestone this lesson — Lesson 01 is foundational.
+The Course Map's first milestone (`hal/leds.s`) begins in Lesson 02.
 
----
+## Game Connection
 
-## Suggested Path
+Everything in the finished handheld — the OLED framebuffer, the Tetris
+board state, the audio driver — is just bytes sitting somewhere in this same
+16 KB of Flash and 512 B of RAM, moved around by the same 16-register CPU
+you're meeting today. The LaunchPad and its two LEDs are the very first
+sliver of the handheld you're building: this lesson pours the foundation
+slab. Every later lesson adds one layer on top of the boilerplate you write
+here — the same four setup instructions (`SP` init, watchdog hold, DCO
+calibration) will open literally every `.s` file for the rest of the course,
+including `handheld/main.s` itself.
 
-1. Skim `../common/glossary.md` — a quick-reference for all the acronyms and terminology used in this course. You don't need to memorize it now; come back whenever an abbreviation looks unfamiliar.
-2. Read `tutorial-01-msp430g2553-overview.md`
-3. Read `tutorial-02-toolchain-workflow.md`
-4. Run the example: `cd examples && make flash`
-5. Attempt the exercises — study the example *after* you've tried, not before
-6. When all three exercises pass, move to Lesson 02
+## Datasheet Reference
 
----
+- **SLAU144, Chapter 1** — CPU architecture: register file, addressing modes
+- **SLAU144, Chapter 3** — System Reset, Interrupts, and Operating Modes
+  (watchdog behavior, vector table)
+- **SLAU144, Chapter 5** — Basic Clock Module+ (DCO calibration)
+- **SLAS735** — MSP430G2553 datasheet: memory map, Info Flash calibration
+  byte addresses
 
-## Key Facts to Memorize
+## Success Criteria
 
-| Thing | Value |
-|-------|-------|
-| Flash (program storage) | 0xC000–0xFFFF (16 KB) |
-| RAM (variables) | 0x0200–0x03FF (512 B) |
-| Reset vector | 0xFFFE (points to `_start`) |
-| LED1 (Red) | P1.0 |
-| LED2 (Green) | P1.6 |
-| Button S2 | P1.3 (active LOW) |
-| Stack starts at | 0x0400 (top of RAM, grows down) |
-| Clock after calibration | 1 MHz (MCLK = SMCLK = DCO) |
+- [ ] I can state the four memory regions (Flash, RAM, peripherals, Info
+      Flash) and their address ranges from memory
+- [ ] I can explain what R0–R3 are for without looking them up
+- [ ] I can explain why `SP` is set to `0x0400` and why that must happen
+      before anything else in `_start`
+- [ ] I can explain what happens if a `WDTCTL` write omits `WDTPW`
+- [ ] `examples/blink.s` builds and flashes without error via `make flash`
+- [ ] LED1 (red, P1.0) blinks at approximately 1 Hz (500 ms on, 500 ms off)
+      continuously
+- [ ] LED2 stays off (untouched) throughout
+- [ ] Removing power and re-applying it resumes the same blink — the
+      program does not depend on the debugger staying attached
+- [ ] `exercises/ex1` and `exercises/ex2` each build, flash, and behave per
+      their own success criteria (see `exercises/README.md`)
