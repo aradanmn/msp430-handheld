@@ -1,5 +1,5 @@
 [project]
-name    = "L14 Framebuffer — Exercise 3"
+name    = "L17 PWM & Tone Generation — Exercise 3"
 mcu     = "msp430g2553"
 mode    = "external"
 

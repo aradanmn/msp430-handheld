@@ -9,7 +9,7 @@
 #            make clean    → remove build artifacts
 #==============================================================================
 
-TARGET  = ex3
+TARGET  = ghost_press
 MCU     = msp430g2553
 
 # --- Toolchain auto-detect ---

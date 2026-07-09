@@ -1,5 +1,5 @@
 [project]
-name    = "L15 Sprites — Exercise 3"
+name    = "L17 PWM & Tone Generation — Exercise 1"
 mcu     = "msp430g2553"
 mode    = "external"
 

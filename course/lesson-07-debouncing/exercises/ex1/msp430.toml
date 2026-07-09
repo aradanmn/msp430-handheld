@@ -1,5 +1,5 @@
 [project]
-name    = "L13 OLED Driver — Exercise 3"
+name    = "L07 Debouncing & Edge Detection — Exercise 1"
 mcu     = "msp430g2553"
 mode    = "external"
 

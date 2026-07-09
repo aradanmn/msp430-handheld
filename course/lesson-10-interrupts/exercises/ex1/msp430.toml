@@ -1,5 +1,5 @@
 [project]
-name    = "L12 SPI — Exercise 3"
+name    = "L10 Interrupts — Exercise 1"
 mcu     = "msp430g2553"
 mode    = "external"
 
