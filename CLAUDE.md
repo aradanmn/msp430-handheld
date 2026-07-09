@@ -4,7 +4,7 @@ This file provides guidance to Claude when working with code in this repository.
 
 ## What This Repo Is
 
-A complete 16-lesson MSP430G2553 assembly programming course targeting the TI MSP-EXP430G2 LaunchPad. Everything runs natively on macOS (Apple Silicon or Intel). No VM required.
+A complete 26-lesson MSP430G2553 assembly programming course targeting the TI MSP-EXP430G2 LaunchPad. Everything runs natively on macOS (Apple Silicon or Intel). No VM required.
 
 ## Setup (one-time)
 
@@ -24,7 +24,7 @@ A native macOS IDE lives at `~/Documents/MSP430IDE/`. Every exercise and the
 cd ~/Documents/MSP430IDE && make run
 
 # Open any exercise as a project:
-# File → Open Folder → select e.g. course/lesson-03-gpio-input/exercises/ex2
+# File → Open Folder → select e.g. course/lesson-06-gpio-input/exercises/ex2
 # The IDE discovers the msp430.toml and enables Build / Flash / Disasm buttons.
 
 # Open the whole repo as a workspace:
@@ -47,7 +47,7 @@ make clean    # remove .elf
 # First-ever flash (updates eZ-FET firmware):
 DYLD_LIBRARY_PATH=~/.local/lib mspdebug --allow-fw-update tilib "prog blink.elf"
 
-# Serial monitor (Lessons 13+)
+# Serial monitor (Lesson 23+, UART)
 ls /dev/cu.usbmodem*                  # find the device
 picocom -b 9600 /dev/cu.usbmodem*     # exit: Ctrl-A Ctrl-X
 ```
@@ -60,8 +60,9 @@ All Makefiles prefer `~/ti/msp430-gcc/bin/msp430-elf-gcc` (full TI installation 
 course/
 ├── common/
 │   ├── msp430g2553-defs.s      ← ALL register/bit definitions (included by every .s file)
+│   ├── glossary.md              ← MSP430/embedded terminology reference
 │   └── Makefile.template       ← Template for new Makefiles
-└── lesson-01-architecture/ through lesson-16-low-power-modes/
+└── lesson-01-architecture/ through lesson-26-complete-game/
     ├── README.md
     ├── tutorial-01-*.md
     ├── tutorial-02-*.md
@@ -70,27 +71,32 @@ course/
         ├── README.md
         ├── ex1/                ← Explore: build it from concepts + datasheet
         ├── ex2/                ← Challenge: debug broken code or solve a design problem
-        └── ex3/                ← Milestone (L02+): write real handheld/ module from spec
+        └── ex3/                ← Milestone (L07+): write real handheld/ module from spec
 
 handheld/                           ← Growing skeleton project (the capstone)
 ├── Makefile                        ← TARGET=main
 ├── registers.md                    ← Register allocation convention
 ├── main.s                          ← Minimal stub (student grows this via milestones)
 ├── hal/                            ← ALL modules are student-created via milestone exercises
-│   ├── leds.s                      ← LED init + test pattern                (L02 milestone)
-│   ├── input.s                     ← Button debounce + read                 (L03 milestone)
-│   ├── timer.s                     ← Timer_A polling tick                   (L04 milestone)
-│   │                                  → converted to CC0 ISR + LPM0         (L05 milestone)
-│   ├── spi.s                       ← USCI_B0 SPI driver                    (L06 milestone)
-│   ├── display.s                   ← SSD1325 OLED init + commands           (L07 milestone)
-│   └── audio.s                     ← Timer_A PWM for buzzer                 (L09 milestone)
+│   ├── leds.s                      ← LED init + test pattern                (pre-L07 reference module)
+│   ├── input.s                     ← Button debounce + read                 (L07 milestone)
+│   │                                  → extended for shift-register input  (L16 milestone)
+│   ├── timer.s                     ← Timer_A polling tick                   (L09 milestone)
+│   │                                  → converted to CC0 ISR + LPM0         (L11 milestone)
+│   ├── spi.s                       ← USCI_B0 SPI driver                    (L12 milestone)
+│   ├── display.s                   ← SSD1325/SSD1306 OLED init + commands   (L13 milestone)
+│   └── audio.s                     ← Timer_A PWM for buzzer                 (L17 milestone)
+│                                      → sound effects & sequencer           (L18 milestone)
 ├── gfx/
-│   ├── framebuf.s                  ← 23LC1024 SRAM framebuffer ops          (L07)
-│   └── sprites.s                   ← Tile/sprite drawing primitives         (L10)
+│   ├── framebuf.s                  ← Drawing primitives                     (L14 milestone)
+│   │                                  → SRAM-backed framebuffer             (L25 milestone)
+│   └── sprites.s                   ← Tile/sprite drawing primitives         (L15 milestone)
 └── game/
-    ├── tetris.s                    ← Piece logic, collision, lines          (L11+)
-    └── ui.s                        ← Menus, score display                   (L13+)
+    ├── tetris.s                    ← Board, pieces, collision, lines        (L19–22 milestones)
+    └── ui.s                        ← Menus, score display, UART             (L23 milestone)
 ```
+
+`hal/leds.s` was created during initial repo setup (before this milestone scheme existed) and is kept as a working reference module — Lesson 03 (GPIO Output) covers the same material but does not have a formal Ex3 milestone, since the first module-producing milestone is Lesson 07.
 
 ## Assembly File Conventions
 
@@ -238,7 +244,7 @@ Each lesson has **3 exercises**:
 
 - **Ex1 — Explore:** Standalone LaunchPad demo. Student derives configuration from tutorials + SLAU144. No pseudocode, no loop structure hints, no "what changes from last exercise."
 - **Ex2 — Challenge:** A real constraint problem or design decision. State the problem only — no hints about what's wrong or how to fix it.
-- **Ex3 — Milestone (L02+):** Write a `handheld/` module from a behavioural spec + public interface (function names + args only). No register pre-assignments, no algorithm outlines. L01 has no milestone.
+- **Ex3 — Milestone (L07+):** Write a `handheld/` module from a behavioural spec + public interface (function names + args only). No register pre-assignments, no algorithm outlines. L01–L06 have no milestone (foundations only — the first module-producing milestone is L07's `hal/input.s`).
 
 **Scaffold rules — enforced per tier:**
 
@@ -265,26 +271,58 @@ Each lesson has **3 exercises**:
 
 ## Course Map
 
-The handheld skeleton grows with each milestone. By L10 it is a complete platform; L11–L16 build the game on top of it.
+The handheld skeleton grows with each milestone. Part I–II (L01–11) run on the bare LaunchPad; Part III (L12–15) adds the OLED; Part IV (L16–18) adds the shift-register buttons and audio amp; Part V (L19–26) builds the complete Tetris game on top of the platform.
+
+**Part I — Assembly Foundations** *(LaunchPad only)*
 
 | L | Topic | Ex1 | Ex2 | Ex3 Milestone |
 |---|-------|-----|-----|---------------|
-| 01 | Architecture | Faster blink | Alternating LEDs | — |
-| 02 | GPIO Patterns | Counted flash | Dual throb | `hal/leds.s` |
-| 03 | GPIO Input | Bounce demo | Design debounce | `hal/input.s` |
-| 04 | Timer_A | Polling blink | Timing analysis | `hal/timer.s` (polling) |
-| 05 | Interrupts | Convert to ISR | ISR timing budget | `hal/timer.s` → ISR + LPM0; game loop shell in `main.s` |
-| 06 | SPI | Bit-bang SPI | USCI_B0 hardware SPI | `hal/spi.s` |
-| 07 | Display | Raw bytes to OLED | Debug broken init | `hal/display.s` (init + clear + pixel) |
-| 08 | Framebuffer | Pixel/line to byte array | Dirty-page optimisation | `gfx/framebuf.s` |
-| 09 | PWM / Audio | Single tone | Melody sequencer | `hal/audio.s` |
-| 10 | Sprites | Render bitmap | Move without artifacts | `gfx/sprites.s` |
-| 11 | Piece Logic | Represent + rotate piece | Collision detection | `game/tetris.s` (pieces) |
-| 12 | Board Logic | Line detect + clear | Scoring + level speed | `game/tetris.s` (board) |
-| 13 | UART | Send score to terminal | Receive speed command | `game/ui.s` (score on OLED + UART) |
-| 14 | ADC | Internal temp sensor | Potentiometer input | — (integrate into game) |
-| 15 | External Memory | SRAM read/write | High score in flash | `gfx/framebuf.s` → SRAM-backed |
-| 16 | Low Power | Measure LPM current | Auto-sleep on idle | LPM3 in game loop |
+| 01 | Architecture & Toolchain | Faster blink | Alternating LEDs | — |
+| 02 | Instruction Set & Addressing Modes | Arithmetic patterns | Addressing-mode puzzle | — |
+| 03 | GPIO Output & Bit Idioms | Counted flash | Dual throb | — |
+| 04 | Delays, Flags & Constant Generator | Calibrated delay | Flag-clobber bug hunt | — |
+| 05 | Subroutines & the Stack | Reusable `delay_ms` | Stack-corruption bug | — |
+| 06 | GPIO Input & Polling | Bounce demo | Design a debounce | — |
+| 07 | Debouncing & Edge Detection | Edge-count demo | Debounce timing design | `hal/input.s` |
+
+**Part II — Timing & Interrupts** *(LaunchPad only)*
+
+| L | Topic | Ex1 | Ex2 | Ex3 Milestone |
+|---|-------|-----|-----|---------------|
+| 08 | Clock System (DCO/MCLK/SMCLK/ACLK) | 8 MHz recalibration | Clock-source mixup bug | — |
+| 09 | Timer_A Up-Mode & Polling | Polling blink | Timing analysis | `hal/timer.s` (polling) |
+| 10 | Interrupts & ISRs | Convert to ISR | ISR timing budget | — |
+| 11 | Low-Power Modes & Game Loop | Measure LPM current | Auto-wake design | `hal/timer.s` → ISR + LPM0; game loop shell in `main.s` |
+
+**Part III — Display Pipeline** *(add SSD1306/SSD1325 OLED)*
+
+| L | Topic | Ex1 | Ex2 | Ex3 Milestone |
+|---|-------|-----|-----|---------------|
+| 12 | SPI (USCI_B0 Master) | Bit-bang SPI | USCI_B0 loopback bug | `hal/spi.s` |
+| 13 | OLED Driver | Raw bytes to OLED | Debug broken init | `hal/display.s` (init + clear + pixel) |
+| 14 | Framebuffer & Drawing Primitives | Pixel/line to byte array | Dirty-page optimisation | `gfx/framebuf.s` |
+| 15 | Sprites & Tiles | Render bitmap | Move without artifacts | `gfx/sprites.s` |
+
+**Part IV — Input & Audio** *(add shift register + amp/speaker)*
+
+| L | Topic | Ex1 | Ex2 | Ex3 Milestone |
+|---|-------|-----|-----|---------------|
+| 16 | Shift-Register Input | 8-button SPI read | Ghost-press bug hunt | `hal/input.s` (extended) |
+| 17 | PWM & Tone Generation | Single tone | Duty-cycle puzzle | `hal/audio.s` |
+| 18 | Sound Effects & Sequencer | Melody sequencer | Tempo-drift bug | `hal/audio.s` (extended) |
+
+**Part V — The Game** *(optional LiPo power)*
+
+| L | Topic | Ex1 | Ex2 | Ex3 Milestone |
+|---|-------|-----|-----|---------------|
+| 19 | Board Representation | Bit-array read/write | Packing puzzle | `game/tetris.s` (board) |
+| 20 | Tetrominoes & Rotation | Represent + rotate piece | Rotation edge case | `game/tetris.s` (pieces) |
+| 21 | Collision & Placement | Bounds check | Collision bug hunt | `game/tetris.s` (physics) |
+| 22 | Line Clear & Scoring | Line detect + clear | Scoring + level speed | `game/tetris.s` (rules) |
+| 23 | UART | Send score to terminal | Receive speed command | `game/ui.s` |
+| 24 | ADC10 | Internal temp sensor | Potentiometer input | — (integrate into game) |
+| 25 | External SRAM | SRAM read/write | Dirty-page SRAM sync | `gfx/framebuf.s` → SRAM-backed |
+| 26 | Complete Game + Polish | Title screen | Pause-menu edge case | Final `handheld/` — playable Tetris |
 
 **Handheld build order matters.** Each module `#include`d into `main.s` must compile cleanly before the next milestone starts. The Makefile target is always `cd handheld && make flash`.
 
@@ -303,36 +341,14 @@ The student should download these free PDFs from TI:
 
 ## Student Progress
 
-**Last session:** 2026-05-03
+**Last session:** 2026-07-09 — course redesigned and rewritten from scratch (16-lesson map → 26-lesson map spanning Parts I–V). All prior lesson content, review exercises, and grade files were removed as part of the redesign; this is a clean start.
 
-**Current position:** Lesson 03, Exercise 2 (debounce)
+**Current position:** Not yet started. Begin at Lesson 01.
 
-**Completed:**
-- L01 Ex1–Ex3: ✅ complete
-- L02 Ex1–Ex3: ✅ complete
-- L03 Ex1: ✅ 8/10 — first attempt toggled continuously while held (structural bug); fixed on second attempt. Grade file at `exercises/ex1/grade.md`
-- L04 Ex1: ✅ 10/10 (−0, but leftover TODO comment noted)
-- L04 Ex2: ✅ 10/10 (same note)
-- L04 Ex3: ✅ 8/10 — LED2 label placement bug (bic.b outside branch), LED2 flash behaviour misread from spec
-
-**Student patterns:**
-- Strong on `.equ` arithmetic — reaches for it unprompted
-- Does not need pseudocode; spec alone is sufficient
-- Flow control bugs: gets them right once identified, not before
-- Misreads ambiguous spec wording (e.g. "flashes" → interpreted as rapid toggle, not single on/off)
-- Discovered `clr.w` independently — treat as known, do not re-introduce formally
-- Tends to over-scaffold subroutines on first attempt (multi-case dispatch where simpler structure works)
-
-**Known self-critique of prior responses:**
-- Introduced `clr.w` unprompted before it was in the curriculum — retracted awkwardly
-- Flip-flopped on LED2 flash behaviour three times in one session — cost a full debugging session
-- Left too much scaffold in L04-ex3 on first pass (register assignments, subroutine interface fully spelled out)
-- Graded 10/10 on exercises with leftover TODO comments — should have been −1 each
-- Contradicted SPD_STATE constant advice twice in same conversation without acknowledging it
+**Completed:** None yet.
 
 **Pending:**
-- L03 Ex2 (debounce — in progress)
-- L03 Ex3 milestone: `handheld/hal/input.s`
-- Lessons 5–16 exercise content not yet generated
-- Lesson 1–3 exercise skeletons not yet updated to current hint-reduction standard
-- Grade files should move to `grades/` directory (not adjacent to exercises)
+- L01 Ex1–Ex3
+- All subsequent lessons through L26
+
+Grade files belong in `grades/` (not adjacent to exercises) once grading resumes.

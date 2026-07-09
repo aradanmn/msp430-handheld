@@ -7,165 +7,184 @@ Build a Game Boy-style handheld running Tetris, one lesson at a time. Every less
 | Component | Part | ~Cost |
 |-----------|------|-------|
 | MCU | MSP-EXP430G2 LaunchPad (MSP430G2553) | ~$10 |
-| Display | 2.7" OLED 128×64 SPI grayscale (SSD1325, Adafruit #2674) | ~$50 |
+| Display | SSD1306/SSD1309 OLED SPI (see `docs/bom-*.md` for exact part) | ~$4–50 |
 | Buttons | SN74HC165N 8-bit parallel-in shift register × 1 | ~$1 |
 | Audio | LM386N-1 audio amp + 8Ω speaker | ~$3 |
 | Power | Adafruit 4410 USB-C LiPo charger + 3.7V 2Ah LiPo | ~$15 |
 | Passives | Breadboard, resistors, caps, diodes | ~$5 |
 
+This roadmap and `CLAUDE.md`'s Course Map are kept in sync — always the same 26 lessons, same numbering. If you ever see them disagree, that's a bug; `CLAUDE.md` is what Claude reads for lesson-writing/grading context, this file is the human-facing overview.
+
 ---
 
-## Phase 1 — Foundation (Lessons 1–5)
+## Phase 1 — Assembly Foundations (Lessons 1–7)
 *Hardware: LaunchPad only (LEDs + onboard button)*
 
 **Lesson 01 — Architecture & Toolchain**
 - MSP430G2553 memory map, register file, status register
-- Instruction set overview: MOV, ADD, SUB, AND, OR, BIC, BIS, BIT
 - Toolchain: msp430-elf-gcc, mspdebug, Makefile workflow
 - Hello world: blink LED1 (P1.0) at 1 Hz
 - *Game connection:* understand the canvas we'll draw on
 
-**Lesson 02 — GPIO Output & Patterns**
+**Lesson 02 — Instruction Set & Addressing Modes**
+- MOV, ADD, SUB, AND, OR, BIC, BIS, BIT, XOR, CMP
+- Register, indexed, indirect, immediate, symbolic addressing
+- *Game connection:* the vocabulary every later lesson builds on
+
+**Lesson 03 — GPIO Output & Bit Idioms**
 - Port direction, output registers, toggle trick
-- Bit manipulation idioms in MSP430 assembly
-- Multi-LED patterns, software delay loops
+- Multi-LED patterns, bit-manipulation idioms
 - *Game connection:* represent game states with LED patterns (start, game-over flash)
 
-**Lesson 03 — GPIO Input & Buttons**
-- Input registers, internal pull-ups (P1REN)
-- Active-low button logic, polling loop
-- Onboard S2 button (P1.3)
-- *Game connection:* "press button to start" → triggers game start later
+**Lesson 04 — Delays, Status Flags & the Constant Generator**
+- Software delay loops, cycle counting
+- SR flags (Z/C/N/V), what clobbers them, R3 constant-generator encoding
+- *Game connection:* precise timing is the backbone of every game tick
 
-**Lesson 04 — Subroutines & the Stack**
-- CALL / RET, stack pointer mechanics, frame layout
-- Passing arguments in registers (R12–R15 calling convention)
-- Building reusable `delay_ms`, `led_set` routines
+**Lesson 05 — Subroutines & the Stack**
+- CALL/RET, stack pointer mechanics, frame layout
+- R12–R15 argument-passing convention, PUSH/POPM
 - *Game connection:* modular game functions — move_piece, draw_board, etc.
 
-**Lesson 05 — Clock System & Precise Timing**
-- DCO calibration to 1 MHz and 8 MHz
-- SMCLK, MCLK, ACLK sources and dividers
-- Calibrated software delays
-- *Game connection:* game loop runs at a fixed tick — this is where that precision comes from
+**Lesson 06 — GPIO Input & Polling**
+- Input registers, internal pull-ups (P1REN)
+- Active-low button logic, polling loop, onboard S2 button (P1.3)
+- *Game connection:* "press button to start" → triggers game start later
+
+**Lesson 07 — Debouncing & Edge Detection**
+- Software debounce (tick-based, not delay-based), press/release/held edges
+- *Game connection:* the input system every later lesson depends on
+- **Milestone:** `handheld/hal/input.s`
 
 ---
 
-## Phase 2 — Display (Lessons 6–10)
-*Hardware: Add 2.7" SSD1325 OLED (SPI, 16-level grayscale) + breadboard*
+## Phase 2 — Timing & Interrupts (Lessons 8–11)
+*Hardware: LaunchPad only*
 
-**What to add:** Wire SSD1325 to P1.5 (SCLK), P1.7 (MOSI), P2.0 (CS), P2.1 (DC), P2.2 (RST). 3.3V from LaunchPad.
+**Lesson 08 — Clock System**
+- DCO calibration to 1 MHz and 8 MHz, MCLK/SMCLK/ACLK sources and dividers
+- *Game connection:* choosing the right clock for the right peripheral
 
-**Lesson 06 — Timer A & Game Tick**
-- Timer A modes: stop, up, continuous, up/down
-- CCR0 compare match → periodic interrupt
-- Building a 60 Hz game loop heartbeat
+**Lesson 09 — Timer_A Up-Mode & Polling**
+- Timer_A modes: stop, up, continuous, up/down; CCR0 compare match
+- Building a periodic tick via TAIFG polling
 - *Game connection:* Tetris gravity = piece drops one row every N ticks
+- **Milestone:** `handheld/hal/timer.s` (polling)
 
-**Lesson 07 — Interrupts**
-- Interrupt vector table, ISR entry/exit
-- GIE, CPUOFF, SR manipulation in ISRs
-- Interrupt latency and priority
-- *Game connection:* button presses and tick timer both use interrupts in the final game
+**Lesson 10 — Interrupts & ISRs**
+- Interrupt vector table, ISR entry/exit, GIE, interrupt latency and priority
+- *Game connection:* button presses and the tick timer both use interrupts in the final game
 
-**Lesson 08 — SPI with USCI_B0**
-- USCI_B0 SPI master setup (CPOL=0, CPHA=0, MSB first)
-- `spi_write_byte` subroutine
-- Chip-select protocol, DC pin for SSD1325
+**Lesson 11 — Low-Power Modes & the Game Loop**
+- CPUOFF/LPM0, waking on CC0 interrupt, measuring current draw
+- Building a 60 Hz game-loop heartbeat that sleeps between ticks
+- *Game connection:* the game loop shell every future lesson calls into
+- **Milestone:** `handheld/hal/timer.s` → CC0 ISR + LPM0; game-loop shell in `main.s`
+
+---
+
+## Phase 3 — Display Pipeline (Lessons 12–15)
+*Hardware: Add SPI OLED (see `docs/bom-*.md`) + breadboard*
+
+**What to add:** Wire the OLED to P1.5 (SCLK), P1.7 (MOSI), P2.0 (CS), P2.1 (DC), P2.2 (RST). 3.3V from LaunchPad.
+
+**Lesson 12 — SPI with USCI_B0**
+- USCI_B0 SPI master setup (CPOL=0, CPHA=0, MSB first), `spi_tx_byte`
+- Chip-select protocol, DC pin
 - *Game connection:* every pixel sent to the display goes through this
+- **Milestone:** `handheld/hal/spi.s`
 
-**Lesson 09 — SSD1325 OLED Driver**
-- SSD1325 initialization sequence and grayscale mode setup
-- Row/column addressing, 4 bits/pixel (16 gray levels)
-- `oled_clear`, `oled_set_pixel(x, y, gray)`, `oled_flush`
-- *Game connection:* draw a single pixel at a gray level — foundation for everything visual
+**Lesson 13 — OLED Driver**
+- Controller initialization sequence, row/column addressing
+- `display_init`, `display_clear`, `display_set_pixel`
+- *Game connection:* draw a single pixel — foundation for everything visual
+- **Milestone:** `handheld/hal/display.s`
 
-**Lesson 10 — Drawing Primitives**
-- Framebuffer strategy: SSD1325 full buffer = 4096 bytes (8× MSP430 RAM)
-- Column-stripe partial update using external SRAM as backing store
-- Draw filled rectangle, horizontal/vertical line, with gray level parameter
+**Lesson 14 — Framebuffer & Drawing Primitives**
+- Framebuffer strategy given 512 B RAM vs. display buffer size
+- Draw filled rectangle, horizontal/vertical line
 - *Game connection:* draw the Tetris board border and a single tetromino block
+- **Milestone:** `handheld/gfx/framebuf.s`
+
+**Lesson 15 — Sprites & Tiles**
+- Tile/sprite bitmap layout, artifact-free movement (erase-then-draw)
+- *Game connection:* draw a moving tetromino cleanly
+- **Milestone:** `handheld/gfx/sprites.s`
 
 ---
 
-## Phase 3 — Input (Lessons 11–13)
-*Hardware: Add SN74HC165N shift register + 8 tactile buttons*
+## Phase 4 — Input & Audio (Lessons 16–18)
+*Hardware: Add SN74HC165N shift register + 8 tactile buttons, LM386N-1 + speaker*
 
-**What to add:** SN74HC165N PL to P2.3, CLK to P1.5 (shared SPI CLK), Q7 to P1.6 (MISO). 8 buttons to A–H inputs with pull-up resistors.
+**What to add:** SN74HC165N PL to P2.3, CLK to P1.5 (shared SPI CLK), Q7 to P1.6 (MISO). 8 buttons to A–H inputs with pull-up resistors. PWM output from P2.4 (TA1.2) → 10µF cap → LM386 pin 3, speaker on pins 5/GND.
 
-**Lesson 11 — SPI Input: Shift Register**
-- SPI in receive mode; USCI_B0 MISO (P1.6)
-- SN74HC165N protocol: pulse PL low, read 8 bits
-- `buttons_read` → 8-bit button state in R12
+**Lesson 16 — Shift-Register Input**
+- SPI in receive mode; SN74HC165N protocol: pulse PL low, read 8 bits
+- `buttons_read` → 8-bit button state
 - *Game connection:* read D-pad + A/B/Start/Select in one SPI transaction
+- **Milestone:** `handheld/hal/input.s` (extended for shift-register source)
 
-**Lesson 12 — Debouncing & Button Events**
-- Software debounce (tick-based, not delay-based)
-- Edge detection: pressed, released, held
-- Button map: Left, Right, Down, Rotate-CW, Rotate-CCW, Drop, Start, Pause
-- *Game connection:* the input system the game will use
-
-**Lesson 13 — Interrupt-Driven Input**
-- Port 2 interrupt on button change (optional hardware INT line from 74HC165)
-- Latency-sensitive input vs. polling in the game loop
-- Input queue in RAM
-- *Game connection:* sub-frame-latency button response
-
----
-
-## Phase 4 — Audio (Lessons 14–15)
-*Hardware: Add LM386N-1 + 8Ω speaker*
-
-**What to add:** PWM output from P2.4 (TA1.2) → 10µF cap → LM386 pin 3, speaker on pins 5/GND, 250µF cap on pin 7. 9V or 5V supply to LM386 pin 6.
-
-**Lesson 14 — PWM & Timer A CCR**
-- Timer A up-mode with CCR1/CCR2 for PWM
-- Duty cycle control, square wave generation
-- `tone_play(freq, duration)` subroutine
+**Lesson 17 — PWM & Tone Generation**
+- Timer_A up-mode with CCR1/CCR2 for PWM, duty cycle control
+- `tone_play(freq, duration)`
 - *Game connection:* piece-move blip, rotate click, line-clear jingle
+- **Milestone:** `handheld/hal/audio.s`
 
-**Lesson 15 — Sound Effects & Music**
-- Frequency table in Flash (notes C4–B5)
-- Sequence player: tempo, notes array
-- Game sounds: move, rotate, soft-drop, line clear (1–4 lines), game over, level up
+**Lesson 18 — Sound Effects & Sequencer**
+- Frequency table in Flash, sequence player (tempo, notes array)
+- Game sounds: move, rotate, drop, line clear, game over, level up
 - *Game connection:* complete audio feedback system
+- **Milestone:** `handheld/hal/audio.s` (extended with sequencer)
 
 ---
 
-## Phase 5 — Full Game (Lessons 16–20)
+## Phase 5 — The Game (Lessons 19–26)
 *Hardware: Optionally add LiPo power system for portable play*
 
-**Lesson 16 — Game Board Representation**
-- 10×20 board in RAM as a packed bit array (25 bytes)
-- `board_get(row, col)`, `board_set(row, col, val)` subroutines
-- Board rendering: map bit → pixel block on OLED
+**Lesson 19 — Board Representation**
+- 10×20 board in RAM as a packed bit array
+- `board_get(row, col)`, `board_set(row, col, val)`
 - *Game connection:* the core data structure of Tetris
+- **Milestone:** `game/tetris.s` (board)
 
-**Lesson 17 — Tetrominos & Rotation**
-- 7 pieces encoded as 4×4 bitmasks in Flash (4 rotations each = 28 words)
-- `piece_get_block(piece, rotation, row, col)`
+**Lesson 20 — Tetrominoes & Rotation**
+- 7 pieces encoded as 4×4 bitmasks in Flash (4 rotations each)
 - Rotation state machine
 - *Game connection:* every piece you'll drop
+- **Milestone:** `game/tetris.s` (pieces)
 
-**Lesson 18 — Collision, Movement & Placement**
-- `piece_can_move(dx, dy)`: bounds + board collision check
-- `piece_place()`: stamp current piece onto board
-- Hard drop (instant fall), soft drop (faster gravity)
+**Lesson 21 — Collision, Movement & Placement**
+- Bounds + board collision check, stamping a piece onto the board
+- Hard drop, soft drop
 - *Game connection:* the physics of Tetris
+- **Milestone:** `game/tetris.s` (physics)
 
-**Lesson 19 — Line Clear & Scoring**
-- `board_check_lines()`: scan rows for full lines
-- `board_clear_line(row)`: shift all rows down
-- Scoring: 1 line=100, 2=300, 3=500, 4=800 (Tetris scoring)
-- Level system: every 10 lines, gravity speeds up
+**Lesson 22 — Line Clear & Scoring**
+- Scan rows for full lines, shift rows down, Tetris scoring (100/300/500/800)
+- Level system: gravity speeds up every 10 lines
 - *Game connection:* the win condition and progression
+- **Milestone:** `game/tetris.s` (rules)
 
-**Lesson 20 — Complete Game + Polish**
-- Title screen, "GAME OVER" animation
-- High score stored in Flash (using BSL write or Info Flash segment)
-- Pause menu
-- Low-power idle between ticks (LPM0 + timer interrupt)
+**Lesson 23 — UART**
+- USCI_A0 UART at 9600 baud, send score to terminal, receive a speed command
+- *Game connection:* debugging line + a simple external control channel
+- **Milestone:** `game/ui.s`
+
+**Lesson 24 — ADC10**
+- Internal temperature sensor, external potentiometer input
+- *Game connection:* alternate control input / diagnostic readout
+- **Milestone:** integrate into game (no new module)
+
+**Lesson 25 — External SRAM**
+- 23LC1024 SPI SRAM read/write, dirty-page sync strategy
+- *Game connection:* framebuffer that outgrows on-chip RAM
+- **Milestone:** `gfx/framebuf.s` → SRAM-backed
+
+**Lesson 26 — Complete Game + Polish**
+- Title screen, "GAME OVER" animation, pause menu
+- High score in Flash (Info Flash segment), LPM3 auto-sleep between ticks
 - *Game connection:* **ship it** — full playable Tetris on your handheld
+- **Milestone:** final `handheld/` build — playable Tetris
 
 ---
 
@@ -176,22 +195,16 @@ Single repo: **github.com/aradanmn/msp430-handheld**
 ```
 msp430-handheld/
 ├── ROADMAP.md              ← this file
-├── CLAUDE.md               ← AI assistant context
+├── CLAUDE.md               ← AI assistant context (canonical course map + conventions)
 ├── README.md
 ├── setup-mac.sh            ← one-time macOS toolchain install
 ├── build-libmsp430.sh      ← builds libmsp430.dylib for mspdebug
 ├── course/
-│   ├── common/             ← msp430g2553-defs.s, Makefile.template
+│   ├── common/             ← msp430g2553-defs.s, glossary.md, Makefile.template
 │   ├── lesson-01-architecture/
-│   │   ├── README.md
-│   │   ├── tutorial-01-*.md
-│   │   ├── examples/       ← working demo (make flash)
-│   │   └── exercises/      ← problems + solutions
-│   ├── lesson-02-gpio-patterns/
-│   ├── lesson-03-gpio-input/
-│   ├── lesson-04-timer-a/
-│   ├── review-01-02/
-│   └── ... (lesson-05 through lesson-20)
+│   ├── lesson-02-instruction-set/
+│   ├── ...
+│   └── lesson-26-complete-game/
 ├── docs/
 │   ├── bom-flat.md         ← single-table order sheet
 │   ├── bom-structured.md   ← BOM organised by build phase
@@ -212,23 +225,20 @@ msp430-handheld/
 
 Just the **MSP-EXP430G2 LaunchPad** — you likely already have it.
 
-**To start Phase 2** (Lesson 6), order:
-- 0.96" SSD1306 OLED SPI module (128×64, 7-pin) — ~$4 on Amazon/AliExpress
+**To start Phase 3** (Lesson 12), order:
+- SPI OLED module (see `docs/bom-*.md` for the current recommended part)
 - Full-size breadboard + jumper wires
 
-**To start Phase 3** (Lesson 11), order:
+**To start Phase 4** (Lesson 16), order:
 - SN74HC165N (DIP-16) × 1 — DigiKey or Mouser
 - 6mm tactile push buttons × 8
 - 10kΩ resistors × 8 (pull-ups)
-
-**To start Phase 4** (Lesson 14), order:
 - LM386N-1 (DIP-8) × 1
 - 8Ω 0.5W speaker
 - 10µF and 250µF electrolytic caps
-- 9V battery + snap connector (or 5V USB)
 
 ---
 
 ## Where to Start
 
-Open `course/lesson-01-architecture/` and read `README.md`. Every lesson has the same structure: read the tutorials, run the example, then attempt the exercises before peeking at solutions.
+Open `course/lesson-01-architecture/` and read `README.md`. Every lesson has the same structure: read the tutorials, run the example, then attempt the exercises before moving on.
