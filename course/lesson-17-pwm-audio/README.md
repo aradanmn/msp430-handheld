@@ -46,7 +46,7 @@ layer everything else calls into: "play this frequency for this long."
 
 ## Hardware
 
-See `docs/hardware/phase-4-audio.md` for the full circuit (LM386 wiring,
+See [`wiring/phase-4-audio.md`](https://github.com/aradanmn/Handheld-MSP430/blob/main/wiring/phase-4-audio.md) for the full circuit (LM386 wiring,
 coupling capacitors, gain configuration). Summary:
 
 | Signal | MSP430 Pin | Notes |

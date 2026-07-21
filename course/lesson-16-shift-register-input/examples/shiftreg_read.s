@@ -6,7 +6,7 @@
 ; Holding any other button must NOT light LED1 — that's the self-test that
 ; confirms both the wiring and the bit order are correct.
 ;
-; Wiring (see docs/hardware/phase-3-buttons-shift-register.md):
+; Wiring (see Handheld-MSP430 repo -> wiring/phase-3-buttons-shift-register.md):
 ;   SN74HC165 SH/LD (PL) -> P2.3   (GPIO, pulse LOW then HIGH to latch)
 ;   SN74HC165 CLK        -> P1.5   (shared USCI_B0 SPI clock)
 ;   SN74HC165 QH         -> P1.6   (USCI_B0 MISO — remove the LED2 jumper!)

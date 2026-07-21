@@ -44,7 +44,7 @@ a full D-pad + four action buttons in one shot, once per frame.
 
 ## Hardware
 
-See `docs/hardware/phase-3-buttons-shift-register.md` for the full parts
+See [`wiring/phase-3-buttons-shift-register.md`](https://github.com/aradanmn/Handheld-MSP430/blob/main/wiring/phase-3-buttons-shift-register.md) for the full parts
 list and wiring diagram. Summary:
 
 | SN74HC165N Pin | Function | Connects to |

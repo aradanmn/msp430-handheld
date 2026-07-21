@@ -8,7 +8,7 @@ The formula relating a target frequency to a Timer_A period is simple:
 period = (SMCLK_Hz / frequency_Hz) - 1
 ```
 
-`docs/hardware/phase-4-audio.md` works this out for a few notes at 1 MHz
+[`wiring/phase-4-audio.md`](https://github.com/aradanmn/Handheld-MSP430/blob/main/wiring/phase-4-audio.md) works this out for a few notes at 1 MHz
 SMCLK: A4 (440 Hz) → 2271, C5 (523 Hz) → 1911, middle C (262 Hz) → 3816.
 The MSP430G2553 has no hardware multiply or divide instruction — dividing
 1,000,000 by an arbitrary runtime value is real work you don't want to do

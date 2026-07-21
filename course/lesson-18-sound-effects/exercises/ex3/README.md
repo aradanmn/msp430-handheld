@@ -53,7 +53,7 @@ audio_tick             ; no args. Call exactly once per game tick (e.g.
 
 ## Reference Material
 
-- `docs/hardware/phase-4-audio.md` — frequency/period formula
+- [`wiring/phase-4-audio.md`](https://github.com/aradanmn/Handheld-MSP430/blob/main/wiring/phase-4-audio.md) — frequency/period formula
 - Lesson 18 tutorials — sequence table format, ticks vs. milliseconds,
   and why a tick-counting bug drifts rather than crashes
 - Your own `hal/timer.s` (Lesson 09–11) — the tick source `audio_tick`

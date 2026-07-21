@@ -2,7 +2,7 @@
 
 ## Exercise 1 (Explore) — Single Tone
 
-Wire up the LM386 amp and speaker per `docs/hardware/phase-4-audio.md`
+Wire up the LM386 amp and speaker per [`wiring/phase-4-audio.md`](https://github.com/aradanmn/Handheld-MSP430/blob/main/wiring/phase-4-audio.md)
 and write a standalone program (`ex1/single_tone.s`) that plays one fixed,
 continuous tone through the speaker (your choice of pitch) while LED1
 stays lit the whole time.
