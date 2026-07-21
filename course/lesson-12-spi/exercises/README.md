@@ -1,6 +1,6 @@
 # Lesson 12 Exercises
 
-Read both tutorials first. Wire the OLED per [`wiring/phase-2-oled-display.md`](https://github.com/aradanmn/Handheld-MSP430/blob/main/wiring/phase-2-oled-display.md),
+Read both tutorials first. Wire the OLED per [`wiring/phase-2-oled-display.md`](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/wiring/phase-2-oled-display.md),
 remove the LED2 jumper, and add a temporary P1.7 -> P1.6 loopback jumper before
 starting Exercise 1. Flash `examples/spi_loopback.s` only *after* you've
 attempted your own exercises — it's the reference, not the starting point.

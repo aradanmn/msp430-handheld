@@ -10,7 +10,7 @@
 
 ## Hardware for This Lesson
 
-Starting this lesson, wire the OLED to the LaunchPad (see [`wiring/phase-2-oled-display.md`](https://github.com/aradanmn/Handheld-MSP430/blob/main/wiring/phase-2-oled-display.md)
+Starting this lesson, wire the OLED to the LaunchPad (see [`wiring/phase-2-oled-display.md`](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/wiring/phase-2-oled-display.md)
 for exact pin numbers): SCLK → P1.5, MOSI → P1.7, CS → P2.0, DC → P2.1, RST → P2.2, power from 3.3V.
 
 **Before you flash anything in this lesson:** SPI on this chip shares pins with

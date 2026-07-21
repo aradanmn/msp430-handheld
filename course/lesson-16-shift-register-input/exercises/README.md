@@ -2,7 +2,7 @@
 
 ## Exercise 1 (Explore) — 8-Button Display
 
-Wire up the SN74HC165N per [`wiring/phase-3-buttons-shift-register.md`](https://github.com/aradanmn/Handheld-MSP430/blob/main/wiring/phase-3-buttons-shift-register.md)
+Wire up the SN74HC165N per [`wiring/phase-3-buttons-shift-register.md`](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/wiring/phase-3-buttons-shift-register.md)
 and write a standalone program (`ex1/buttons_display.s`) that reads all 8
 buttons in one transaction and reports them using the two onboard LEDs:
 

@@ -7,7 +7,7 @@ Build a Game Boy-style handheld running Tetris, one lesson at a time. Every less
 | Component | Part | ~Cost |
 |-----------|------|-------|
 | MCU | MSP-EXP430G2 LaunchPad (MSP430G2553) | ~$10 |
-| Display | SSD1306/SSD1309 OLED SPI (see [the hardware repo's BOM](https://github.com/aradanmn/Handheld-MSP430/blob/main/bom-flat.md) for exact part) | ~$4–50 |
+| Display | SSD1306/SSD1309 OLED SPI (see [the hardware repo's BOM](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/bom-flat.md) for exact part) | ~$4–50 |
 | Buttons | SN74HC165N 8-bit parallel-in shift register × 1 | ~$1 |
 | Audio | LM386N-1 audio amp + 8Ω speaker | ~$3 |
 | Power | Adafruit 4410 USB-C LiPo charger + 3.7V 2Ah LiPo | ~$15 |
@@ -84,7 +84,7 @@ This roadmap and `CLAUDE.md`'s Course Map are kept in sync — always the same 2
 ---
 
 ## Phase 3 — Display Pipeline (Lessons 12–15)
-*Hardware: Add SPI OLED (see [the hardware repo's BOM](https://github.com/aradanmn/Handheld-MSP430/blob/main/bom-flat.md)) + breadboard*
+*Hardware: Add SPI OLED (see [the hardware repo's BOM](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/bom-flat.md)) + breadboard*
 
 **What to add:** Wire the OLED to P1.5 (SCLK), P1.7 (MOSI), P2.0 (CS), P2.1 (DC), P2.2 (RST). 3.3V from LaunchPad.
 
@@ -211,7 +211,7 @@ msp430-handheld/
 
 The **hardware design** — bill of materials, KiCad schematic, breadboard
 layout, and per-phase wiring guides — lives in the separate hardware repo
-**[aradanmn/Handheld-MSP430](https://github.com/aradanmn/Handheld-MSP430)**
+**[aradanmn/MSP430handheld-hardware](https://github.com/aradanmn/MSP430handheld-hardware)**
 (`bom-*`, `schematic/`, `breadboard/`, `scripts/`, `wiring/`). The lessons
 below link to those wiring guides where a phase adds new hardware.
 
@@ -222,7 +222,7 @@ below link to those wiring guides where a phase adds new hardware.
 Just the **MSP-EXP430G2 LaunchPad** — you likely already have it.
 
 **To start Phase 3** (Lesson 12), order:
-- SPI OLED module (see [the hardware repo's BOM](https://github.com/aradanmn/Handheld-MSP430/blob/main/bom-flat.md) for the current recommended part)
+- SPI OLED module (see [the hardware repo's BOM](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/bom-flat.md) for the current recommended part)
 - Full-size breadboard + jumper wires
 
 **To start Phase 4** (Lesson 16), order:

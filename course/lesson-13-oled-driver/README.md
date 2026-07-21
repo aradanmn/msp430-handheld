@@ -14,7 +14,7 @@
 ## Hardware for This Lesson
 
 Same wiring as Lesson 12: OLED SCLK -> P1.5, MOSI -> P1.7, CS -> P2.0,
-DC -> P2.1, RST -> P2.2, 3.3V power (see [`wiring/phase-2-oled-display.md`](https://github.com/aradanmn/Handheld-MSP430/blob/main/wiring/phase-2-oled-display.md)).
+DC -> P2.1, RST -> P2.2, 3.3V power (see [`wiring/phase-2-oled-display.md`](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/wiring/phase-2-oled-display.md)).
 **Remove the P1.7 -> P1.6 loopback jumper from Lesson 12** — MISO isn't wired
 to the OLED at all, and leaving that jumper in place will make P1.6 fight the
 signal coming from whatever the OLED does (or doesn't) drive there.

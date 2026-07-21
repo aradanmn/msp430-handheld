@@ -5,7 +5,7 @@
 ; on/off pattern, with LED1 blinking in sync — audible AND visual
 ; confirmation that the PWM setup is correct.
 ;
-; Wiring (see Handheld-MSP430 repo -> wiring/phase-4-audio.md):
+; Wiring (see MSP430handheld-hardware repo -> wiring/phase-4-audio.md):
 ;   P2.4 (TA1.2, Timer1_A3 CCR2) -> 10uF cap -> LM386 pin 3 -> speaker
 ;******************************************************************************
 
@@ -27,7 +27,7 @@
 .equ    SMCLK_HZ,       1000000
 .equ    TONE_A4_HZ,     440
 .equ    TONE_A4_PERIOD, (SMCLK_HZ/TONE_A4_HZ)-1    ; 2271 — matches
-                                                      ; Handheld-MSP430 repo -> wiring/phase-4-audio.md
+                                                      ; MSP430handheld-hardware repo -> wiring/phase-4-audio.md
 .equ    TONE_A4_DUTY,   (TONE_A4_PERIOD+1)/2        ; 50% duty ~= 1136
 
 _start:
