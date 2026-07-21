@@ -25,7 +25,7 @@ everything downstream never has to think about polarity again.
 
 ## The bit-to-button table
 
-This wiring's mapping (see `docs/hardware/phase-3-buttons-shift-register.md`
+This wiring's mapping (see [`wiring/phase-3-buttons-shift-register.md`](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/wiring/phase-3-buttons-shift-register.md)
 for the full pin table) is:
 
 ```

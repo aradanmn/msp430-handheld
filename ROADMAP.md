@@ -7,7 +7,7 @@ Build a Game Boy-style handheld running Tetris, one lesson at a time. Every less
 | Component | Part | ~Cost |
 |-----------|------|-------|
 | MCU | MSP-EXP430G2 LaunchPad (MSP430G2553) | ~$10 |
-| Display | SSD1306/SSD1309 OLED SPI (see `docs/bom-*.md` for exact part) | ~$4–50 |
+| Display | SSD1306/SSD1309 OLED SPI (see [the hardware repo's BOM](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/bom-flat.md) for exact part) | ~$4–50 |
 | Buttons | SN74HC165N 8-bit parallel-in shift register × 1 | ~$1 |
 | Audio | LM386N-1 audio amp + 8Ω speaker | ~$3 |
 | Power | Adafruit 4410 USB-C LiPo charger + 3.7V 2Ah LiPo | ~$15 |
@@ -84,7 +84,7 @@ This roadmap and `CLAUDE.md`'s Course Map are kept in sync — always the same 2
 ---
 
 ## Phase 3 — Display Pipeline (Lessons 12–15)
-*Hardware: Add SPI OLED (see `docs/bom-*.md`) + breadboard*
+*Hardware: Add SPI OLED (see [the hardware repo's BOM](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/bom-flat.md)) + breadboard*
 
 **What to add:** Wire the OLED to P1.5 (SCLK), P1.7 (MOSI), P2.0 (CS), P2.1 (DC), P2.2 (RST). 3.3V from LaunchPad.
 
@@ -190,10 +190,10 @@ This roadmap and `CLAUDE.md`'s Course Map are kept in sync — always the same 2
 
 ## Repo Organization
 
-Single repo: **github.com/aradanmn/msp430-handheld**
+Software repo: **github.com/aradanmn/MSP430handheld-firmware** (this repo — course + firmware). Hardware lives in a companion repo (see below).
 
 ```
-msp430-handheld/
+MSP430handheld-firmware/
 ├── ROADMAP.md              ← this file
 ├── CLAUDE.md               ← AI assistant context (canonical course map + conventions)
 ├── README.md
@@ -205,19 +205,15 @@ msp430-handheld/
 │   ├── lesson-02-instruction-set/
 │   ├── ...
 │   └── lesson-26-complete-game/
-├── docs/
-│   ├── bom-flat.md         ← single-table order sheet
-│   ├── bom-structured.md   ← BOM organised by build phase
-│   └── hardware/
-│       ├── phase-1-launchpad-only.md
-│       ├── phase-2-oled-display.md
-│       ├── phase-3-buttons-shift-register.md
-│       ├── phase-4-audio.md
-│       ├── schematic/      ← KiCad schematic (msp430_gameboy.kicad_sch)
-│       ├── breadboard/     ← full assembled board guide + SVG layout
-│       └── scripts/        ← KiCad schematic generators
+├── handheld/               ← the capstone firmware skeleton (main.s, hal/, gfx/, game/)
 └── journal/                ← session-by-session learning log
 ```
+
+The **hardware design** — bill of materials, KiCad schematic, breadboard
+layout, and per-phase wiring guides — lives in the separate hardware repo
+**[aradanmn/MSP430handheld-hardware](https://github.com/aradanmn/MSP430handheld-hardware)**
+(`bom-*`, `schematic/`, `breadboard/`, `scripts/`, `wiring/`). The lessons
+below link to those wiring guides where a phase adds new hardware.
 
 ---
 
@@ -226,7 +222,7 @@ msp430-handheld/
 Just the **MSP-EXP430G2 LaunchPad** — you likely already have it.
 
 **To start Phase 3** (Lesson 12), order:
-- SPI OLED module (see `docs/bom-*.md` for the current recommended part)
+- SPI OLED module (see [the hardware repo's BOM](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/bom-flat.md) for the current recommended part)
 - Full-size breadboard + jumper wires
 
 **To start Phase 4** (Lesson 16), order:

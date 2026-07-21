@@ -10,7 +10,7 @@ tone and then another must produce two clearly distinct, audible pitches.
 `audio_tone_play` takes a **period**, not a frequency in Hz — see the
 lesson's tutorials for why (no hardware divider on this chip; compute the
 period from a desired frequency using `.equ` arithmetic at assemble time,
-same as `docs/hardware/phase-4-audio.md`'s worked examples).
+same as [`wiring/phase-4-audio.md`](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/wiring/phase-4-audio.md)'s worked examples).
 
 ## Public Interface
 
@@ -28,7 +28,7 @@ audio_tone_play       ; R12 = timer period (the TACCR0-equivalent value
 
 ## Reference Material
 
-- `docs/hardware/phase-4-audio.md` — wiring + the frequency/period formula
+- [`wiring/phase-4-audio.md`](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/wiring/phase-4-audio.md) — wiring + the frequency/period formula
 - SLAU144 Ch 12 — Timer_A up mode, compare/output modes
 - Lesson 17 tutorials — OUTMOD_7, and why the period argument is a period,
   not a frequency

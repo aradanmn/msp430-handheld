@@ -55,7 +55,7 @@ top of it.
 
 ## Reference Material
 
-- `docs/hardware/phase-3-buttons-shift-register.md` — wiring + bit mapping
+- [`wiring/phase-3-buttons-shift-register.md`](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/wiring/phase-3-buttons-shift-register.md) — wiring + bit mapping
 - SLAU144 Ch 16 — USCI SPI master configuration
 - Lesson 16 tutorials — the PL-pulse-then-shift protocol and the
   active-low inversion

@@ -51,12 +51,13 @@ handheld/                    ← growing skeleton project (the capstone)
 ├── hal/                     ← hardware abstraction (input, timer, spi, display, audio)
 ├── gfx/                     ← framebuffer, sprites
 └── game/                    ← Tetris logic, UI
-
-docs/
-├── hardware/                ← breadboard guide, phase build docs
-├── bom-structured.md        ← hierarchical bill of materials
-└── bom-flat.md              ← flat BOM for ordering
 ```
+
+The **hardware design** — schematic, bill of materials, breadboard layout, and
+per-phase wiring guides — lives in the separate hardware repo:
+**[aradanmn/MSP430handheld-hardware](https://github.com/aradanmn/MSP430handheld-hardware)**.
+This repo (the software side) links to those wiring guides from the lessons
+that need them.
 
 Each lesson contains two tutorials, a working example, and 3 exercises: ex1 (Explore — standalone concept practice), ex2 (Challenge — a real constraint problem or design decision), and, from Lesson 07 onward, ex3 (Milestone — adds a real module to `handheld/`). See `CLAUDE.md`'s Course Map for the full lesson-by-lesson breakdown and `ROADMAP.md` for the hardware build phases.
 
@@ -65,7 +66,7 @@ Each lesson contains two tutorials, a working example, and 3 exercises: ex1 (Exp
 ## Hardware
 
 - **MCU:** MSP430G2553 on the **MSP-EXP430G2 Rev 1.5** LaunchPad (eZ-FET lite, USB `2047:0013`)
-- **Display:** SPI OLED (see `docs/bom-*.md` for the current recommended part)
+- **Display:** SPI OLED (see [the hardware repo's BOM](https://github.com/aradanmn/MSP430handheld-hardware/blob/main/bom-flat.md) for the current recommended part)
 - **Input:** 8 buttons via SN74HC165N shift register (SPI)
 - **Audio:** LM386N-1 amp + speaker (Timer_A PWM)
 - **Power:** Adafruit 4410 USB-C LiPo charger + 3.7V 2Ah LiPo

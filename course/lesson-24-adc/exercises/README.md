@@ -2,7 +2,7 @@
 
 Read both tutorials before starting. Wire a potentiometer between VCC and
 GND with its wiper on P1.4 before starting Exercise 1 — see
-`docs/hardware/` for a wiring reference if you need one. Attempt Exercises
+[the MSP430handheld-hardware hardware repo](https://github.com/aradanmn/MSP430handheld-hardware) for a wiring reference if you need one. Attempt Exercises
 1 and 2 before studying `examples/adc_temp_demo.s` — it's the reference,
 not the starting point.
 
