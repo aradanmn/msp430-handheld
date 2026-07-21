@@ -4,7 +4,7 @@ description: MSP430 handheld gaming console — goals, hardware choices, current
 type: project
 ---
 
-Single repo at github.com/aradanmn/msp430-handheld. 16-lesson assembly course building up to a playable Tetris on a custom handheld.
+Software repo at github.com/aradanmn/MSP430handheld-firmware (hardware is in the companion MSP430handheld-hardware repo). 16-lesson assembly course building up to a playable Tetris on a custom handheld.
 
 **Why:** educational platform for MSP430 assembly programming; hardware goal is a Game Boy-style device.
 

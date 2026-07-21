@@ -190,10 +190,10 @@ This roadmap and `CLAUDE.md`'s Course Map are kept in sync — always the same 2
 
 ## Repo Organization
 
-Single repo: **github.com/aradanmn/msp430-handheld**
+Software repo: **github.com/aradanmn/MSP430handheld-firmware** (this repo — course + firmware). Hardware lives in a companion repo (see below).
 
 ```
-msp430-handheld/
+MSP430handheld-firmware/
 ├── ROADMAP.md              ← this file
 ├── CLAUDE.md               ← AI assistant context (canonical course map + conventions)
 ├── README.md

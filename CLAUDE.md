@@ -28,7 +28,7 @@ cd ~/Documents/MSP430IDE && make run
 # The IDE discovers the msp430.toml and enables Build / Flash / Disasm buttons.
 
 # Open the whole repo as a workspace:
-# File → Open Folder → select msp430-handheld/
+# File → Open Folder → select MSP430handheld-firmware/
 # IDE auto-discovers all sub-projects (one per exercise + handheld).
 ```
 
